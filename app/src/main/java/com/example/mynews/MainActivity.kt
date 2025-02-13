@@ -13,55 +13,35 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.mynews.data.NewsItem
 import com.example.mynews.data.NewsRepository
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.navigation.findNavController
+import androidx.navigation.ui.setupWithNavController
+import com.example.mynews.ui.HeadlinesFragment
+import com.example.mynews.ui.SavedFragment
+import com.example.mynews.ui.SourcesFragment
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var newsRepository: NewsRepository
-    private lateinit var resultTextView: TextView
+    private lateinit var bottomNavView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main) // Замените на ваш layout
+        setContentView(R.layout.activity_main)
 
-        resultTextView = findViewById(R.id.result_tv) // Замените на id вашего TextView
-        val database = DatabaseBuilder.getDatabase(this)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            newsRepository = NewsRepositoryImpl(database = database)
-        } // Создание экземпляра репозитория
-
-        // Вызов запроса в корутине
-        lifecycleScope.launch {
-            try {
-                val newsList = newsRepository.getTopHeadlines()
-                handleNewsData(newsList) // Обработка полученных данных
-            } catch (e: Exception) {
-                handleError(e) // Обработка ошибок
+        bottomNavView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        openFragmentWithoutBackStack(HeadlinesFragment())
+        bottomNavView.setOnItemSelectedListener { item ->
+            when (item.itemId){
+                R.id.headlinesFragment -> openFragmentWithoutBackStack(HeadlinesFragment())
+                R.id.savedFragment -> openFragmentWithoutBackStack(SavedFragment())
+                R.id.sourcesFragment -> openFragmentWithoutBackStack(SourcesFragment())
             }
+            true
         }
     }
-
-    // Обработка списка новостей
-    private fun handleNewsData(newsList: List<NewsItem>) {
-        if (newsList.isNotEmpty()) {
-            val firstNews = newsList[0]
-            val resultText = """
-                Title: ${firstNews.title}
-                Description: ${firstNews.description}
-                URL: ${firstNews.url}
-            """.trimIndent()
-
-            resultTextView.text = resultText
-            Log.d("NewsData", "First news item: $resultText")
-
-        } else {
-            Log.d("NewsData", "News list is empty.")
-            resultTextView.text = "News list is empty"
-        }
-    }
-
-    // Обработка ошибок
-    private fun handleError(e: Exception) {
-        Log.e("NewsError", "Error fetching news: ${e.message}", e)
-        resultTextView.text = "Error fetching news: ${e.message}"
+    fun openFragmentWithoutBackStack(fragment: androidx.fragment.app.Fragment){
+        val transaction: androidx.fragment.app.FragmentTransaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.nav_host_fragment, fragment)
+        transaction.commit()
     }
 }
