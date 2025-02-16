@@ -12,12 +12,13 @@ class HeadlinesPagerAdapter(fragmentActivity: FragmentActivity) :
     override fun createFragment(position: Int): Fragment {
         val category = when (position) {
             0 -> "business"
-            1 -> "TRAVELING"
+            1 -> "sports"
             2 -> "health"
             3 -> "entertainment"
-            4 -> "TECHNOLOGY"
+            4 -> "technology"
             5 -> "general"
-            else -> "general"
+            6 -> "science"
+            else -> "science"
         }
         return CategoryFragment.newInstance(category)
     }

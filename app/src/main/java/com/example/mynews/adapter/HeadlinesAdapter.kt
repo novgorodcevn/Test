@@ -22,6 +22,7 @@ class HeadlinesAdapter(val newsList: MutableList<Article>) :
         val titleTextView: TextView = itemView.findViewById(R.id.headlineTitle)
         val descriptionTextView: TextView = itemView.findViewById(R.id.headlineSource)
         val newsImageView: ImageView = itemView.findViewById(R.id.headlineImage)
+        val headlineTime: TextView = itemView.findViewById(R.id.headlineTime)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

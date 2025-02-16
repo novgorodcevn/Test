@@ -31,6 +31,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        viewBinding=true
+    }
 
         kotlinOptions {
             jvmTarget="1.8"
@@ -74,7 +77,8 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
 
     implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
-    implementation("io.reactivex.rxjava3:rxjava:3.1.6")
+    implementation("io.reactivex.rxjava3:rxjava:3.1.8")
+    implementation("com.github.akarnokd:rxjava3-retrofit-adapter:3.0.0")
     implementation("com.github.moxy-community:moxy:2.2.2")
     implementation("com.github.moxy-community:moxy-androidx:2.2.2")
     kapt("com.github.moxy-community:moxy-compiler:2.2.2")
