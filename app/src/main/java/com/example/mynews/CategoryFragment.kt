@@ -48,7 +48,10 @@ class CategoryFragment : Fragment() {
             .build()
             .create(NewsApiService::class.java)
     }
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        category = arguments?.getString(ARG_CATEGORY)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,6 +66,7 @@ class CategoryFragment : Fragment() {
 
         return binding.root
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
