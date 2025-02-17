@@ -7,7 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 class HeadlinesPagerAdapter(fragmentActivity: FragmentActivity) :
     FragmentStateAdapter(fragmentActivity) {
 
-    override fun getItemCount(): Int = 6
+    override fun getItemCount(): Int = 7
 
     override fun createFragment(position: Int): Fragment {
         val category = when (position) {
@@ -18,7 +18,7 @@ class HeadlinesPagerAdapter(fragmentActivity: FragmentActivity) :
             4 -> "technology"
             5 -> "general"
             6 -> "science"
-            else -> "science"
+            else -> "business"
         }
         return CategoryFragment.newInstance(category)
     }
