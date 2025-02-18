@@ -1,18 +1,32 @@
 package com.example.mynews
 
-import android.annotation.SuppressLint
-import com.google.gson.Gson
+import android.os.Build
+import hu.akarnokd.rxjava3.retrofit.RxJava3CallAdapterFactory
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitBuilder {
+
     private const val BASE_URL = "https://newsapi.org/v2/"
 
-    fun buildApiService(@SuppressLint("NewApi") gson: Gson = GsonUtils.gson): NewsApiService {
-        val retrofit = Retrofit.Builder()
+    private val client = OkHttpClient.Builder()
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }).build()
+
+
+    private val retrofit = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(GsonConverterFactory.create(GsonUtils.gson))
+            .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
+            .client(client)
             .build()
-        return retrofit.create(NewsApiService::class.java)
+    } else {
+        TODO("VERSION.SDK_INT < O")
     }
+
+    val apiService: NewsApiService = retrofit.create(NewsApiService::class.java)
 }
