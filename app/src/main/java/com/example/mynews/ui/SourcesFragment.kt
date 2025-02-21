@@ -1,60 +1,86 @@
 package com.example.mynews.ui
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.mynews.NewsFromSourceFragment
 import com.example.mynews.R
+import com.example.mynews.RetrofitBuilder
+import com.example.mynews.adapter.SourcesAdapter
+import com.example.mynews.data.Source
+import com.example.mynews.databinding.FragmentSourcesBinding
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SourcesFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SourcesFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding:FragmentSourcesBinding?=null
+    private val binding get() = _binding!!
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: SourcesAdapter
+    private val compositeDisposable = CompositeDisposable()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_sources, container, false)
+        _binding = FragmentSourcesBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SourcesFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SourcesFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        recyclerView = binding.sourcesRecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        adapter = SourcesAdapter(mutableListOf()) { source ->
+            openNewsFromSource(source)
+        }
+        recyclerView.adapter = adapter
+
+        loadSources()
+    }
+   private fun loadSources() {
+       val disposable:Disposable = RetrofitBuilder.apiService.getSources(apiKey = "8e3d4af8b176486cad2ea977f8a2d01c" )
+           .subscribeOn(Schedulers.io())
+           .observeOn(AndroidSchedulers.mainThread())
+           .subscribe({ sourcesResponse ->
+               val sources = sourcesResponse.sources
+               adapter.sourcesList.clear()
+               adapter.sourcesList.addAll(sources)
+               adapter.notifyDataSetChanged()
+           }, { error ->
+               Log.e("SourcesFragment", "Error loading sources", error)
+               Toast.makeText(context, "Error loading sources", Toast.LENGTH_SHORT).show()
+           })
+
+       compositeDisposable.add(disposable)
+   }
+
+   private fun openNewsFromSource(source: Source) {
+        val fragment = source.id?.let { NewsFromSourceFragment.newInstance(it) }
+       if (fragment != null) {
+           parentFragmentManager.beginTransaction()
+               .replace(R.id.nav_host_fragment, fragment)
+               .addToBackStack(null)
+               .commit()
+       }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        compositeDisposable.clear()
+        _binding = null
     }
 }
