@@ -10,10 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.mynews.R
 import com.example.mynews.data.Article
+import com.example.mynews.ui.headlines.NewsProfileFragment
 
 class HeadlinesAdapter(val newsList: MutableList<Article>) :
     RecyclerView.Adapter<HeadlinesAdapter.ViewHolder>() {
@@ -43,6 +45,14 @@ class HeadlinesAdapter(val newsList: MutableList<Article>) :
             .placeholder(R.drawable.ic_launcher_background) // Заглушка
             .error(R.drawable.ic_launcher_background) // Изображение при ошибке
             .into(holder.newsImageView)
+
+        holder.itemView.setOnClickListener {
+            val fragment = NewsProfileFragment.newInstance(newsItem)
+            (holder.itemView.context as FragmentActivity).supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     override fun getItemCount(): Int {
